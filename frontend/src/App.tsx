@@ -68,7 +68,7 @@ const AppContent = () => {
                         <tr>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-900">Jane Smith</td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-500">jane@example.com</td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-500">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-500">
                             <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
                               Active
                             </span>
@@ -79,10 +79,10 @@ const AppContent = () => {
                         </tr>
                         <tr>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-900">Bob Wilson</td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-500">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-500">
                             <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full">Inactive</span>
                           </td>
-                          <td className="px-4 py-3 whitespace-now-wrap text-sm text-slate-500">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-500">
                             <button className="text-blue-600 hover:underline">View</button>
                           </td>
                         </tr>
