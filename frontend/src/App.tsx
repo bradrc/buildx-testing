@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import AuthGuard from './components/AuthGuard';
 import MainLayout from './layouts/MainLayout';
@@ -93,9 +93,9 @@ const AppContent = () => {
               </div>
             </MainLayout>
           </AuthGuard>
-        />
-      </Routes>
-    </BrowserRouter>
+        }
+      />
+    </Routes>
   );
 };
 
