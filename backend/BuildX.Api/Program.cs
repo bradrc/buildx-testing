@@ -21,9 +21,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5174")
+            policy.WithOrigins("http://localhost:5173", "http://localhost:5174")
                   .WithMethods("GET", "POST", "OPTIONS")
-                  .WithHeaders("Content-Type");
+                  .WithHeaders("Content-Type", "Authorization");
         });
 });
 
@@ -123,6 +123,24 @@ app.MapPost("/refresh-token", async (RefreshTokenRequest request, IAuthService a
 app.MapGet("/protected", () =>
 {
     return Results.Ok(new { Message = "You are authorized!" });
+}).RequireAuthorization();
+
+// Dashboard Stats Endpoint
+app.MapGet("/dashboard/stats", () =>
+{
+    var stats = new DashboardStatsResponse
+    {
+        TotalUsers = 1284,
+        ActiveSessions = 432,
+        Revenue = 25000.50,
+        SystemHealth = 98,
+        ChartData = new ChartDataResponse
+        {
+            Labels = new[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun" },
+            Values = new[] { 10.0, 25.0, 45.0, 30.0, 55.0, 70.0 }
+        }
+    };
+    return Results.Ok(stats);
 }).RequireAuthorization();
 
 app.Run();
