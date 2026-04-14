@@ -1,11 +1,14 @@
+using BuildX.Domain.Interfaces;
 using BuildX.Application.Dtos;
 using BuildX.Application.Interfaces;
 using BuildX.Application.Services;
 using BuildX.Domain.Entities;
 using BuildX.Infrastructure.Repositories;
 using BuildX.Infrastructure.Services;
+using BuildX.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text;
 
@@ -14,6 +17,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Database Configuration
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Server=localhost;Database=BuildXDb;Trusted_Connection=True;MultipleActiveResultSets=true"));
 
 // CORS Policy
 builder.Services.AddCors(options =>
@@ -46,7 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 // Dependency Injection
-builder.Services.AddSingleton<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();

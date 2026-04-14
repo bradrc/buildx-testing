@@ -1,6 +1,6 @@
 using BuildX.Domain.Entities;
 
-namespace BuildX.Application.Interfaces;
+namespace BuildX.Domain.Interfaces;
 
 public interface IUserRepository
 {
