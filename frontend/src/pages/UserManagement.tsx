@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import UserTable from '../components/users/UserTable';
-import UserForm from '../components/users/UserForm';
-import type { UserResponse } from '../types/user';
+import React, { useState, useCallback } from "react";
+import UserTable from "../components/users/UserTable";
+import UserForm from "../components/users/UserForm";
+import type { UserResponse } from "../types/user";
+import { userService } from "../services/userService";
 
 const UserManagement: React.FC = () => {
   const [editingUser, setEditingUser] = useState<UserResponse | undefined>(undefined);
@@ -22,6 +23,20 @@ const UserManagement: React.FC = () => {
     setIsCreating(false);
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      await userService.delete(id);
+      alert("User deleted successfully");
+    } catch (error) {
+      alert("Failed to delete user");
+    }
+  };
+
+  const refreshUsers = useCallback(() => {
+    // This is a dummy function to trigger re-render or reload in UserTable
+    // In a real app, we might use a state or a context
+  }, []);
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -36,7 +51,7 @@ const UserManagement: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <UserTable />
+          <UserTable onEdit={handleEdit} onDelete={handleDelete} refreshUsers={refreshUsers} />
         </div>
         <div className="lg:col-span-1">
           {(editingUser || isCreating) && (
