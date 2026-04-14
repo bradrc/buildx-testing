@@ -2,6 +2,7 @@ using BuildX.Domain.Interfaces;
 using BuildX.Application.Dtos;
 using BuildX.Application.Interfaces;
 using BuildX.Application.Services;
+using BuildX.Application.Validators;
 using BuildX.Domain.Entities;
 using BuildX.Infrastructure.Repositories;
 using BuildX.Infrastructure.Services;
@@ -11,10 +12,13 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllers(); // Added this to support Controllers
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -57,6 +61,11 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+// FluentValidation Registration
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<UserCreateRequestValidator>();
 
 var app = builder.Build();
 
@@ -75,6 +84,7 @@ using (var scope = app.Services.CreateScope())
             Username = "testuser",
             Email = "test@example.com",
             PasswordHash = passwordHasher.HashPassword("Password123!"),
+            Role = "Admin"
         };
         await userRepository.AddAsync(user);
     }
@@ -94,11 +104,13 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllers(); // Added this to map the UsersController
+
 app.MapGet("/weatherforecast", () =>
 {
     var summaries = new[]
     {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+        "Freezing", "Bracing", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
 
     var forecast =  Enumerable.Range(1, 5).Select(index =>
