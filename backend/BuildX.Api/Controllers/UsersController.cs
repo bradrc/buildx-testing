@@ -65,6 +65,21 @@ public class UsersController : ControllerBase
         }
     }
 
+    [HttpPatch("{id}/password")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdatePassword(Guid id, [FromBody] UserPasswordUpdateRequest request)
+    {
+        try
+        {
+            await _userService.UpdatePasswordAsync(id, request);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(Guid id)

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import UserTable from '../components/users/UserTable';
 import UserForm from '../components/users/UserForm';
-import { UserResponse } from '../types/user';
+import type { UserResponse } from '../types/user';
 
 const UserManagement: React.FC = () => {
   const [editingUser, setEditingUser] = useState<UserResponse | undefined>(undefined);
@@ -36,14 +36,14 @@ const UserManagement: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <UserTable onEditUser={handleEdit} />
+          <UserTable />
         </div>
         <div className="lg:col-span-1">
           {(editingUser || isCreating) && (
-            <UserForm 
-              user={editingUser} 
-              onSave={handleClose} 
-              onCancel={handleClose} 
+            <UserForm
+              user={editingUser}
+              onSave={handleClose}
+              onCancel={handleClose}
             />
           )}
         </div>

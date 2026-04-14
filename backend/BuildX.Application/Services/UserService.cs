@@ -92,4 +92,16 @@ public class UserService : IUserService
     {
         await _userRepository.DeleteAsync(id);
     }
+
+    public async Task UpdatePasswordAsync(Guid id, UserPasswordUpdateRequest request)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
+        {
+            throw new Exception("User not found.");
+        }
+
+        user.PasswordHash = _passwordHasher.HashPassword(request.NewPassword);
+        await _userRepository.UpdateAsync(user);
+    }
 }

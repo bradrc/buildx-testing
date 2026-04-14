@@ -9,4 +9,5 @@ public interface IUserService
     Task<UserResponse?> GetByIdAsync(Guid id);
     Task<UserResponse> UpdateAsync(Guid id, UserUpdateRequest request);
     Task DeleteAsync(Guid id);
+    Task UpdatePasswordAsync(Guid id, UserPasswordUpdateRequest request);
 }
