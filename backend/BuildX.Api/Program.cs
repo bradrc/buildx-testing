@@ -69,11 +69,25 @@ builder.Services.AddValidatorsFromAssemblyContaining<UserCreateRequestValidator>
 
 var app = builder.Build();
 
-// Seed a user for testing
+// Apply migrations and seed data
 using (var scope = app.Services.CreateScope())
 {
-    var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
-    var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        // This ensures the database is created and all migrations are applied
+        await context.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+        throw;
+    }
+
+    var userRepository = services.GetRequiredService<IUserRepository>();
+    var passwordHasher = services.GetRequiredService<IPasswordHasher>();
     
     var existingUser = await userRepository.GetByUsernameAsync("testuser");
     if (existingUser == null)
