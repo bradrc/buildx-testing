@@ -1,9 +1,13 @@
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, Settings, FileText, HelpCircle } from 'lucide-react';
 
 const Sidebar = () => {
+  const location = useLocation();
+  
   const menuItems = [
-    { icon: <LayoutDashboard size={20} />, label: 'Dashboard', href: '#' },
-    { icon: <Users size={20} />, label: 'Users', href: '#' },
+    { icon: <LayoutDashboard size={20} />, label: 'Dashboard', href: '/' },
+    { icon: <Users size={20} />, label: 'Users', href: '/users' },
     { icon: <FileText size={20} />, label: 'Reports', href: '#' },
     { icon: <Settings size={20} />, label: 'Settings', href: '#' },
     { icon: <HelpCircle size={20} />, label: 'Help', href: '#' },
@@ -18,19 +22,23 @@ const Sidebar = () => {
         <ul className="space-y-2">
           {menuItems.map((item, index) => (
             <li key={index}>
-              <a
-                href={item.href}
-                className="flex items-center gap-3 p-2 rounded hover:bg-slate-700 transition-colors"
+              <Link
+                to={item.href}
+                className={`flex items-center gap-3 p-2 rounded transition-colors ${
+                  location.pathname === item.href 
+                    ? 'bg-slate-700 text-white' 
+                    : 'hover:bg-slate-700 text-slate-300'
+                }`}
               >
                 {item.icon}
                 <span>{item.label}</span>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
       </nav>
       <div className="p-4 border-t border-slate-700 text-sm text-slate-400">
-        v1.0.0
+        <span className="opacity-70">v1.0.0</span>
       </div>
     </aside>
   );
