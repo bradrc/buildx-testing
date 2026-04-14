@@ -4,6 +4,7 @@ import AuthGuard from './components/AuthGuard';
 import MainLayout from './layouts/MainLayout';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
+import UserManagement from './pages/UserManagement';
 
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
@@ -11,16 +12,19 @@ const AppContent = () => {
   return (
     <Routes>
       <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" replace />} />
+      
       <Route
-        path="/"
         element={
           <AuthGuard>
-            <MainLayout>
-              <Dashboard />
-            </MainLayout>
+            <MainLayout />
           </AuthGuard>
         }
-      />
+      >
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/users" element={<UserManagement />} />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
