@@ -1,40 +1,46 @@
-using BuildX.Application.Interfaces;
 using BuildX.Domain.Entities;
+using BuildX.Domain.Interfaces;
+using BuildX.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace BuildX.Infrastructure.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    private readonly List<User> _users = new();
+    private readonly AppDbContext _context;
+
+    public UserRepository(AppDbContext context)
+    {
+        _context = context;
+    }
 
     public async Task<User?> GetByUsernameAsync(string username)
     {
-        return await Task.FromResult(_users.FirstOrDefault(u => u.Username == username));
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.Username == username && !u.IsDeleted);
     }
 
     public async Task<User?> GetByEmailAsync(string email)
     {
-        return await Task.FromResult(_users.FirstOrDefault(u => u.Email == email));
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.Email == email && !u.IsDeleted);
     }
 
     public async Task<User?> GetByRefreshTokenAsync(string refreshToken)
     {
-        return await Task.FromResult(_users.FirstOrDefault(u => u.RefreshToken == refreshToken && u.RefreshTokenExpiryTime > DateTime.UtcNow));
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken && u.RefreshTokenExpiryTime > DateTime.UtcNow && !u.IsDeleted);
     }
 
     public async Task AddAsync(User user)
     {
-        _users.Add(user);
-        await Task.CompletedTask;
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(User user)
     {
-        var index = _users.FindIndex(u => u.Id == user.Id);
-        if (index != -1)
-        {
-            _users[index] = user;
-        }
-        await Task.CompletedTask;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
     }
 }
