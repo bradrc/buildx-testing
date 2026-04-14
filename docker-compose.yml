@@ -27,6 +27,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=db;Database=BuildXDb;User Id=sa;Password=BuildXStrongPassword123!;TrustServerCertificate=True
+      - JwtSettings__Secret=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - JwtSettings__Issuer=BuildX.Api
+      - JwtSettings__Audience=BuildX.Api
+      - JwtSettings__AccessTokenExpirationMinutes=60
     ports:
       - "5000:80"
     depends_on:
