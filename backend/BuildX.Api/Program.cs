@@ -24,7 +24,7 @@ builder.Services.AddSwaggerGen();
 
 // Database Configuration
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Server=localhost;Database=BuildXDb;Trusted_Connection=True;MultipleActiveResultSets=true"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")!));
 
 // CORS Policy
 builder.Services.AddCors(options =>
