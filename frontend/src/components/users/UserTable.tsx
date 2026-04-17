@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { UserResponse } from '../../types/user';
+import type { UserResponse } from '../../types/user';
 import { userService } from '../../services/userService';
 import { Edit2, Trash2, Search, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -31,8 +31,8 @@ const UserTable: React.FC<UserTableProps> = ({ onEdit, onDelete }) => {
     fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter(user => 
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredUsers = users.filter(user =>
+    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -77,9 +77,8 @@ const UserTable: React.FC<UserTableProps> = ({ onEdit, onDelete }) => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.username}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      user.role === 'Admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
-                    }`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${user.role === 'Admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+                      }`}>
                       {user.role}
                     </span>
                   </td>

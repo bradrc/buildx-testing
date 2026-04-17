@@ -1,6 +1,9 @@
 import { Bell, LogOut, Search } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Topbar = () => {
+  const { logout, username } = useAuth();
+
   return (
     <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 fixed top-0 right-0 left-64 z-10">
       <div className="flex items-center gap-4">
@@ -19,13 +22,17 @@ const Topbar = () => {
         </button>
         <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
           <div className="text-right">
-            <p className="text-sm font-medium text-slate-900">Admin User</p>
-            <p className="text-xs text-slate-500">admin@buildx.com</p>
+            <p className="text-sm font-medium text-slate-900">{username || 'User'}</p>
+            <p className="text-xs text-slate-500">{username ? `${username}@buildx.com` : 'guest@buildx.com'}</p>
           </div>
           <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-            AU
+            {username ? username.charAt(0).toUpperCase() : 'U'}
           </div>
-          <button className="p-2 text-slate-500 hover:bg-slate-100 rounded-full">
+          <button 
+            onClick={logout}
+            className="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors"
+            title="Logout"
+          >
             <LogOut size={20} />
           </button>
         </div>

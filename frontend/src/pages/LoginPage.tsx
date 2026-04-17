@@ -15,9 +15,9 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await axiosInstance.post('/login', { username, password });
-      const { token, username: authUsername } = response.data;
-      login(token, authUsername);
+      const response = await axiosInstance.post('/auth/login', { username, password });
+      const { token, refreshToken, username: authUsername } = response.data;
+      login(token, authUsername, refreshToken);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid username or password');
       console.error('Login error:', err);

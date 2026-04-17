@@ -1,7 +1,6 @@
 using BuildX.Application.Interfaces;
 using BuildX.Domain.Interfaces;
 using BuildX.Application.Dtos;
-using BuildX.Domain.Interfaces;
 using BuildX.Domain.Entities;
 
 namespace BuildX.Application.Services;
@@ -56,5 +55,16 @@ public class AuthService : IAuthService
         await _userRepository.UpdateAsync(user);
 
         return new AuthResponse(newAccessToken, newRefreshToken, user.Username);
+    }
+
+    public async Task LogoutAsync(string refreshToken)
+    {
+        var user = await _userRepository.GetByRefreshTokenAsync(refreshToken);
+        if (user != null)
+        {
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = null;
+            await _userRepository.UpdateAsync(user);
+        }
     }
 }

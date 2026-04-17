@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { UserResponse, UserCreateRequest, UserUpdateRequest } from '../../types/user';
+import type { UserResponse, UserCreateRequest, UserUpdateRequest } from '../../types/user';
 import { userService } from '../../services/userService';
 import toast from 'react-hot-toast';
 import { Loader2, Save, X } from 'lucide-react';
@@ -82,8 +82,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) => {
         <h2 className="text-xl font-semibold text-gray-800">
           {isEditing ? 'Edit User' : 'Create New User'}
         </h2>
-        <button 
-          onClick={onCancel} 
+        <button
+          onClick={onCancel}
           className="text-gray-400 hover:text-gray-600 transition-colors"
         >
           <X className="w-5 h-5" />
@@ -95,9 +95,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
           <input
             {...register('username')}
-            className={`w-full px-3 py-2 border rounded-md outline-none transition-all ${
-              errors.username ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-indigo-200 focus:border-indigo-500'
-            }`}
+            className={`w-full px-3 py-2 border rounded-md outline-none transition-all ${errors.username ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-indigo-200 focus:border-indigo-500'
+              }`}
             placeholder="johndoe"
           />
           {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username.message}</p>}
@@ -108,9 +107,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) => {
           <input
             {...register('email')}
             type="email"
-            className={`w-full px-3 py-2 border rounded-md outline-none transition-all ${
-              errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-indigo-200 focus:border-indigo-500'
-            }`}
+            className={`w-full px-3 py-2 border rounded-md outline-none transition-all ${errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-indigo-200 focus:border-indigo-500'
+              }`}
             placeholder="john@example.com"
           />
           {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
@@ -122,9 +120,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) => {
             <input
               {...register('password')}
               type="password"
-              className={`w-full px-3 py-2 border rounded-md outline-none transition-all ${
-                errors.password ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-indigo-200 focus:border-indigo-500'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md outline-none transition-all ${errors.password ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-indigo-200 focus:border-indigo-500'
+                }`}
               placeholder="******"
             />
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
@@ -135,9 +132,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
           <select
             {...register('role')}
-            className={`w-full px-3 py-2 border rounded-md outline-none transition-all ${
-              errors.role ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-indigo-200 focus:border-indigo-500'
-            }`}
+            className={`w-full px-3 py-2 border rounded-md outline-none transition-all ${errors.role ? 'border-red-500 focus:ring-red-200' : 'border-gray-300 focus:ring-indigo-200 focus:border-indigo-500'
+              }`}
           >
             <option value="User">User</option>
             <option value="Admin">Admin</option>

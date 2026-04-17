@@ -1,5 +1,5 @@
 import axiosInstance from '../api/axiosInstance';
-import { UserResponse, UserCreateRequest, UserUpdateRequest } from '../types/user';
+import type { UserResponse, UserCreateRequest, UserUpdateRequest } from '../types/user';
 
 class UserService {
   private readonly endpoint = '/users';

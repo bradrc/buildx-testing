@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../api/axiosInstance';
 
 interface AuthContextType {
   token: string | null;
   username: string | null;
-  login: (token: string, username: string) => void;
-  logout: () => void;
+  login: (token: string, username: string, refreshToken: string) => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -30,20 +31,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(false);
   }, []);
 
-  const login = (newToken: string, newUsername: string) => {
+  const login = (newToken: string, newUsername: string, newRefreshToken: string) => {
     localStorage.setItem('token', newToken);
     localStorage.setItem('username', newUsername);
+    localStorage.setItem('refreshToken', newRefreshToken);
     setToken(newToken);
     setUsername(newUsername);
     navigate('/');
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    setToken(null);
-    setUsername(null);
-    navigate('/login');
+  const logout = async () => {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        await axiosInstance.post('/auth/logout', { refreshToken });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      localStorage.removeItem('refreshToken');
+      setToken(null);
+      setUsername(null);
+      navigate('/login');
+    }
   };
 
   const isAuthenticated = !!token;
