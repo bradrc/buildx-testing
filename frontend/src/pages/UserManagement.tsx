@@ -3,10 +3,12 @@ import UserTable from "../components/users/UserTable";
 import UserForm from "../components/users/UserForm";
 import type { UserResponse } from "../types/user";
 import { userService } from "../services/userService";
+import toast from "react-hot-toast";
 
 const UserManagement: React.FC = () => {
   const [editingUser, setEditingUser] = useState<UserResponse | undefined>(undefined);
   const [isCreating, setIsCreating] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleEdit = (user: UserResponse) => {
     setEditingUser(user);
@@ -21,21 +23,21 @@ const UserManagement: React.FC = () => {
   const handleClose = () => {
     setEditingUser(undefined);
     setIsCreating(false);
+    setRefreshKey(prev => prev + 1);
   };
 
   const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) {
+      return;
+    }
     try {
       await userService.delete(id);
-      alert("User deleted successfully");
+      toast.success("User deleted successfully");
+      setRefreshKey(prev => prev + 1);
     } catch (error) {
-      alert("Failed to delete user");
+      toast.error("Failed to delete user");
     }
   };
-
-  const refreshUsers = useCallback(() => {
-    // This is a dummy function to trigger re-render or reload in UserTable
-    // In a real app, we might use a state or a context
-  }, []);
 
   return (
     <div className="p-6">
@@ -51,7 +53,11 @@ const UserManagement: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <UserTable onEdit={handleEdit} onDelete={handleDelete} refreshUsers={refreshUsers} />
+          <UserTable 
+            key={refreshKey} 
+            onEdit={handleEdit} 
+            onDelete={handleDelete} 
+          />
         </div>
         <div className="lg:col-span-1">
           {(editingUser || isCreating) && (
