@@ -140,24 +140,6 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-// Auth Endpoints
-app.MapPost("/login", async (LoginRequest request, IAuthService authService) =>
-{
-    var response = await authService.LoginAsync(request.Username, request.Password);
-    return response is not null ? Results.Ok(response) : Results.Unauthorized();
-});
-
-app.MapPost("/refresh-token", async (RefreshTokenRequest request, IAuthService authService) =>
-{
-    var response = await authService.RefreshTokenAsync("", request.RefreshToken);
-    return response is not null ? Results.Ok(response) : Results.BadRequest("Invalid refresh token");
-});
-
-app.MapGet("/protected", () =>
-{
-    return Results.Ok(new { Message = "You are authorized!" });
-}).RequireAuthorization();
-
 // Dashboard Stats Endpoint
 app.MapGet("/dashboard/stats", () =>
 {
@@ -182,5 +164,3 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
-
-public record RefreshTokenRequest(string RefreshToken);

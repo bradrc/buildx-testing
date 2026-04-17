@@ -86,7 +86,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            var user = await _userService.DeleteAsync(id);
+            await _userService.DeleteAsync(id);
             return NoContent();
         }
         catch (Exception ex)

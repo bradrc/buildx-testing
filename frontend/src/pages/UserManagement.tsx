@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import UserTable from "../components/users/UserTable";
 import UserForm from "../components/users/UserForm";
 import type { UserResponse } from "../types/user";

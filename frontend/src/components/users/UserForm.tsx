@@ -29,7 +29,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) => {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
@@ -49,19 +48,19 @@ const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) => {
   const onSubmit = async (data: UserFormValues) => {
     setLoading(true);
     try {
-      if (isEditing) {
+      if (isEditing && user) {
         const updateData: UserUpdateRequest = {
           username: data.username,
           email: data.email,
           role: data.role,
         };
-        await userService.update(user!.id, updateData);
+        await userService.update(user.id, updateData);
         toast.success('User updated successfully');
       } else {
         const createData: UserCreateRequest = {
           username: data.username,
           email: data.email,
-          password: data.password,
+          password: data.password || '',
           role: data.role,
         };
         await userService.create(createData);
