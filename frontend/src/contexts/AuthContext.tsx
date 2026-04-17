@@ -29,6 +29,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUsername(storedUsername);
     }
     setIsLoading(false);
+
+    // Listen for token refresh events from axios interceptor
+    const handleTokenRefresh = () => {
+      const newToken = localStorage.getItem('token');
+      setToken(newToken);
+    };
+
+    window.addEventListener('auth-token-refreshed', handleTokenRefresh);
+    return () => window.removeEventListener('auth-token-refreshed', handleTokenRefresh);
   }, []);
 
   const login = (newToken: string, newUsername: string, newRefreshToken: string) => {
