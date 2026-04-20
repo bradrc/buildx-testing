@@ -52,22 +52,22 @@ const UserManagement: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+        <div className={(editingUser || isCreating) ? "lg:col-span-2" : "lg:col-span-3"}>
           <UserTable 
             key={refreshKey} 
             onEdit={handleEdit} 
             onDelete={handleDelete} 
           />
         </div>
-        <div className="lg:col-span-1">
-          {(editingUser || isCreating) && (
+        {(editingUser || isCreating) && (
+          <div className="lg:col-span-1">
             <UserForm
               user={editingUser}
               onSave={handleClose}
               onCancel={handleClose}
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
