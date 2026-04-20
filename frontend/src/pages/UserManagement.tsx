@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import UserTable from "../components/users/UserTable";
 import UserForm from "../components/users/UserForm";
+import Modal from "../components/common/Modal";
 import type { UserResponse } from "../types/user";
 import { userService } from "../services/userService";
 import toast from "react-hot-toast";
@@ -39,6 +40,8 @@ const UserManagement: React.FC = () => {
     }
   };
 
+  const isModalOpen = !!(editingUser || isCreating);
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -51,24 +54,25 @@ const UserManagement: React.FC = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className={(editingUser || isCreating) ? "lg:col-span-2" : "lg:col-span-3"}>
-          <UserTable 
-            key={refreshKey} 
-            onEdit={handleEdit} 
-            onDelete={handleDelete} 
-          />
-        </div>
-        {(editingUser || isCreating) && (
-          <div className="lg:col-span-1">
-            <UserForm
-              user={editingUser}
-              onSave={handleClose}
-              onCancel={handleClose}
-            />
-          </div>
-        )}
+      <div className="w-full">
+        <UserTable 
+          key={refreshKey} 
+          onEdit={handleEdit} 
+          onDelete={handleDelete} 
+        />
       </div>
+
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={handleClose} 
+        title={editingUser ? `Edit User: ${editingUser.username}` : "Create New User"}
+      >
+        <UserForm
+          user={editingUser}
+          onSave={handleClose}
+          onCancel={handleClose}
+        />
+      </Modal>
     </div>
   );
 };
