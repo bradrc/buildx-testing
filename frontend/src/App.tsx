@@ -5,6 +5,7 @@ import MainLayout from './layouts/MainLayout';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import UserManagement from './pages/UserManagement';
+import CustomerRegistration from './pages/CustomerRegistration';
 
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
@@ -22,6 +23,7 @@ const AppContent = () => {
       >
         <Route path="/" element={<Dashboard />} />
         <Route path="/users" element={<UserManagement />} />
+        <Route path="/customers/new" element={<CustomerRegistration />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
