@@ -3,7 +3,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Loader2, Save, ArrowLeft } from 'lucide-react';
 import { IMaskInput } from 'react-imask';
 import { CustomerService } from '../services/customerService';
@@ -32,10 +32,13 @@ interface CustomerRegistrationProps {
   onCancel?: () => void;
 }
 
-const CustomerRegistration: React.FC<CustomerRegistrationProps> = ({ customer, onSave, onCancel }) => {
+const CustomerRegistration: React.FC<CustomerRegistrationProps> = ({ customer: initialCustomer, onSave, onCancel }) => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCepLoading, setIsCepLoading] = useState(false);
+  const [isLoadingCustomer, setIsLoadingCustomer] = useState(false);
+  const [customerData, setCustomerData] = useState<Customer | undefined>(initialCustomer);
 
   const {
     register,
@@ -61,20 +64,46 @@ const CustomerRegistration: React.FC<CustomerRegistrationProps> = ({ customer, o
   });
 
   useEffect(() => {
-    if (customer) {
-      setValue('name', customer.name);
-      setValue('email', customer.email);
-      setValue('document', customer.document);
-      setValue('phone', customer.phone);
-      if (customer.address) {
-        setValue('address.zipCode', customer.address.zipCode);
-        setValue('address.street', customer.address.street);
-        setValue('address.neighborhood', customer.address.neighborhood);
-        setValue('address.city', customer.address.city);
-        setValue('address.state', customer.address.state);
+    const loadCustomer = async () => {
+      if (id) {
+        setIsLoadingCustomer(true);
+        try {
+          const data = await CustomerService.getCustomerById(id);
+          setCustomerData(data);
+          setValue('name', data.name);
+          setValue('email', data.email);
+          setValue('document', data.document);
+          setValue('phone', data.phone);
+          if (data.address) {
+            setValue('address.zipCode', data.address.zipCode);
+            setValue('address.street', data.address.street);
+            setValue('address.neighborhood', data.address.neighborhood);
+            setValue('address.city', data.address.city);
+            setValue('address.state', data.address.state);
+          }
+        } catch (error: any) {
+          toast.error('Failed to load customer data');
+          navigate('/customers');
+        } finally {
+          setIsLoadingCustomer(false);
+        }
+      } else if (initialCustomer) {
+        setValue('name', initialCustomer.name);
+        setValue('email', initialCustomer.email);
+        setValue('document', initialCustomer.document);
+        setValue('phone', initialCustomer.phone);
+        if (initialCustomer.address) {
+          setValue('address.zipCode', initialCustomer.address.zipCode);
+          setValue('address.street', initialCustomer.address.street);
+          setValue('address.neighborhood', initialCustomer.address.neighborhood);
+          setValue('address.city', initialCustomer.address.city);
+          setValue('address.state', initialCustomer.address.state);
+        }
       }
-    }
-  }, [customer, setValue]);
+    };
+
+    loadCustomer();
+  }, [id, initialCustomer, setValue, navigate]);
 
   const handleCepBlur = async (cepValue: string) => {
     const cep = cepValue.replace(/\D/g, '');
@@ -108,8 +137,10 @@ const CustomerRegistration: React.FC<CustomerRegistrationProps> = ({ customer, o
         },
       };
 
-      if (customer?.id) {
-        await CustomerService.updateCustomer(customer.id, cleanedData as any);
+      const customerId = id || customerData?.id;
+
+      if (customerId) {
+        await CustomerService.updateCustomer(customerId, cleanedData as any);
         toast.success('Cliente atualizado com sucesso!');
       } else {
         await CustomerService.createCustomer(cleanedData as Customer);
@@ -128,6 +159,15 @@ const CustomerRegistration: React.FC<CustomerRegistrationProps> = ({ customer, o
     }
   };
 
+  if (isLoadingCustomer) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <Loader2 size={40} className="animate-spin text-blue-600" />
+        <p className="mt-4 text-slate-600">Loading customer data...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -145,7 +185,7 @@ const CustomerRegistration: React.FC<CustomerRegistrationProps> = ({ customer, o
             <ArrowLeft size={20} />
           </button>
           <h1 className="text-2xl font-bold text-slate-800">
-            {customer ? 'Edição de Cliente' : 'Cadastro de Cliente'}
+            {(id || customerData) ? 'Edição de Cliente' : 'Cadastro de Cliente'}
           </h1>
         </div>
       </div>

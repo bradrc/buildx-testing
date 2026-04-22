@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Settings, FileText, HelpCircle, UserPlus } from 'lucide-react';
+import { LayoutDashboard, Users, Settings, FileText, HelpCircle, UserPlus, Users as CustomersIcon } from 'lucide-react';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -7,6 +7,7 @@ const Sidebar = () => {
   const menuItems = [
     { icon: <LayoutDashboard size={20} />, label: 'Dashboard', href: '/' },
     { icon: <Users size={20} />, label: 'Users', href: '/users' },
+    { icon: <CustomersIcon size={20} />, label: 'Customers', href: '/customers' },
     { icon: <UserPlus size={20} />, label: 'New Customer', href: '/customers/new' },
     { icon: <FileText size={20} />, label: 'Reports', href: '#' },
     { icon: <Settings size={20} />, label: 'Settings', href: '#' },

@@ -1,34 +1,24 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CustomerTable from "../components/customers/CustomerTable";
-import CustomerRegistration from "./CustomerRegistration";
-import Modal from "../components/common/Modal";
 import ConfirmationModal from "../components/common/ConfirmationModal";
 import type { Customer } from "../types/customer";
 import { CustomerService } from "../services/customerService";
 import toast from "react-hot-toast";
 
 const CustomerManagement: React.FC = () => {
-  const [editingCustomer, setEditingCustomer] = useState<Customer | undefined>(undefined);
-  const [isCreating, setIsCreating] = useState(false);
+  const navigate = useNavigate();
   const [refreshKey, setRefreshKey] = useState(0);
   
   // State for deletion confirmation
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
 
   const handleEdit = (customer: Customer) => {
-    setEditingCustomer(customer);
-    setIsCreating(false);
+    navigate(`/customers/edit/${customer.id}`);
   };
 
   const handleCreate = () => {
-    setIsCreating(true);
-    setEditingCustomer(undefined);
-  };
-
-  const handleClose = () => {
-    setEditingCustomer(undefined);
-    setIsCreating(false);
-    setRefreshKey(prev => prev + 1);
+    navigate('/customers/new');
   };
 
   const requestDelete = (id: string) => {
@@ -49,8 +39,6 @@ const CustomerManagement: React.FC = () => {
     }
   };
 
-  const isModalOpen = !!(editingCustomer || isCreating);
-
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -70,18 +58,6 @@ const CustomerManagement: React.FC = () => {
           onDelete={requestDelete} 
         />
       </div>
-
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={handleClose} 
-        title={editingCustomer ? `Edit Customer: ${editingCustomer.name}` : "Create New Customer"}
-      >
-        <CustomerRegistration
-          customer={editingCustomer}
-          onSave={handleClose}
-          onCancel={handleClose}
-        />
-      </Modal>
 
       <ConfirmationModal 
         isOpen={!!customerToDelete}
