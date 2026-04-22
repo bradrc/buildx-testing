@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -26,7 +26,13 @@ const customerSchema = z.object({
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
 
-const CustomerRegistration = () => {
+interface CustomerRegistrationProps {
+  customer?: Customer;
+  onSave?: () => void;
+  onCancel?: () => void;
+}
+
+const CustomerRegistration: React.FC<CustomerRegistrationProps> = ({ customer, onSave, onCancel }) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCepLoading, setIsCepLoading] = useState(false);
@@ -54,6 +60,22 @@ const CustomerRegistration = () => {
     },
   });
 
+  useEffect(() => {
+    if (customer) {
+      setValue('name', customer.name);
+      setValue('email', customer.email);
+      setValue('document', customer.document);
+      setValue('phone', customer.phone);
+      if (customer.address) {
+        setValue('address.zipCode', customer.address.zipCode);
+        setValue('address.street', customer.address.street);
+        setValue('address.neighborhood', customer.address.neighborhood);
+        setValue('address.city', customer.address.city);
+        setValue('address.state', customer.address.state);
+      }
+    }
+  }, [customer, setValue]);
+
   const handleCepBlur = async (cepValue: string) => {
     const cep = cepValue.replace(/\D/g, '');
     if (cep.length !== 8) return;
@@ -76,7 +98,6 @@ const CustomerRegistration = () => {
   const onSubmit = async (data: CustomerFormValues) => {
     setIsSubmitting(true);
     try {
-      // Limpeza de máscaras antes do envio para a API
       const cleanedData = {
         ...data,
         document: data.document.replace(/\D/g, ''),
@@ -87,11 +108,21 @@ const CustomerRegistration = () => {
         },
       };
 
-      await CustomerService.createCustomer(cleanedData as Customer);
-      toast.success('Cliente cadastrado com sucesso!');
-      navigate('/customers'); 
+      if (customer?.id) {
+        await CustomerService.updateCustomer(customer.id, cleanedData as any);
+        toast.success('Cliente atualizado com sucesso!');
+      } else {
+        await CustomerService.createCustomer(cleanedData as Customer);
+        toast.success('Cliente cadastrado com sucesso!');
+      }
+      
+      if (onSave) {
+        onSave();
+      } else {
+        navigate('/customers');
+      }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Erro ao cadastrar cliente');
+      toast.error(error.response?.data?.message || 'Erro ao processar cliente');
     } finally {
       setIsSubmitting(false);
     }
@@ -102,12 +133,20 @@ const CustomerRegistration = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => navigate(-1)} 
+            onClick={() => {
+              if (onCancel) {
+                onCancel();
+              } else {
+                navigate(-1);
+              }
+            }} 
             className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-600"
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-2xl font-bold text-slate-800">Cadastro de Cliente</h1>
+          <h1 className="text-2xl font-bold text-slate-800">
+            {customer ? 'Edição de Cliente' : 'Cadastro de Cliente'}
+          </h1>
         </div>
       </div>
 

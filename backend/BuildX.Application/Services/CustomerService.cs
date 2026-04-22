@@ -49,6 +49,33 @@ public class CustomerService : ICustomerService
         return customers.Select(MapToResponse);
     }
 
+    public async Task<PagedResponse<CustomerResponse>> GetPagedCustomersAsync(int pageNumber, int pageSize, string? searchTerm)
+    {
+        // Note: Since ICustomerRepository.GetAllAsync() returns IEnumerable, 
+        // we might need to update the repository to support IQueryable or 
+        // handle pagination in memory for now if the dataset is small.
+        // For a professional implementation, we should update the repository.
+        
+        var customers = await _customerRepository.GetAllAsync();
+        var query = customers.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(c => 
+                c.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) || 
+                c.Document.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var totalCount = query.Count();
+        var items = query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Select(MapToResponse)
+            .ToList();
+
+        return new PagedResponse<CustomerResponse>(items, totalCount, pageNumber, pageSize);
+    }
+
     public async Task<CustomerResponse?> GetCustomerByIdAsync(Guid id)
     {
         var customer = await _customerRepository.GetByIdAsync(id);
@@ -99,10 +126,6 @@ public class CustomerService : ICustomerService
             throw new Exception("Customer not found.");
         }
 
-        // Note: In a real scenario, we would check for dependencies here.
-        // Since the current domain only has Customers and Users, and no explicit 
-        // relationship is defined in AppDbContext, we can proceed with soft delete.
-        
         await _customerRepository.DeleteAsync(id);
     }
 

@@ -44,6 +44,13 @@ public class CustomersController : ControllerBase
         return Ok(response);
     }
 
+    [HttpGet("paged")]
+    public async Task<IActionResult> GetPaged([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+    {
+        var response = await _customerService.GetPagedCustomersAsync(pageNumber, pageSize, searchTerm);
+        return Ok(response);
+    }
+
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] CustomerUpdateRequest request)
     {
