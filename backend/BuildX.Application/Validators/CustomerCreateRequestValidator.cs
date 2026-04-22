@@ -3,41 +3,35 @@ using BuildX.Application.Dtos;
 
 namespace BuildX.Application.Validators;
 
-public class CustomerCreateRequestValidator : AbstractValidator<CustomerCreateRequest>
+public class CustomerCreateRequestValidator : CustomerRequestValidatorBase<CustomerCreateRequest>
 {
     public CustomerCreateRequestValidator()
     {
-        RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Name is required.");
-
-        RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email is required.")
-            .EmailAddress().WithMessage("Invalid email format.");
-
         RuleFor(x => x.Document)
-            .NotEmpty().WithMessage("Document (CPF/CNPJ) is required.")
-            .Must(BeAValidDocument).WithMessage("Invalid CPF or CNPJ format.");
-
-        RuleFor(x => x.Phone)
-            .NotEmpty().WithMessage("Phone is required.");
-
-        RuleFor(x => x.Address.Street)
-            .NotEmpty().WithMessage("Street is required.");
-        RuleFor(x => x.Address.City)
-            .NotEmpty().WithMessage("City is required.");
-        RuleFor(x => x.Address.State)
-            .Length(2).WithMessage("State must be 2 characters (UF).");
-        RuleFor(x => x.Address.ZipCode)
-            .NotEmpty().WithMessage("ZipCode is required.");
+            .NotEmpty().WithMessage("Document (CPF) is required.")
+            .Must(BeAValidCpf).WithMessage("Invalid CPF format or check digits.");
     }
 
-    private bool BeAValidDocument(string document)
+    private bool BeAValidCpf(string cpf)
     {
-        if (string.IsNullOrWhiteSpace(document)) return false;
+        if (string.IsNullOrWhiteSpace(cpf)) return false;
         
-        // Basic check for CPF (11 digits) or CNPJ (14 digits)
-        // In a real scenario, we would implement the full validation algorithm
-        var digitsOnly = new string(document.Where(char.IsDigit).ToArray());
-        return digitsOnly.Length == 11 || digitsOnly.Length == 14;
+        var digits = cpf.Where(char.IsDigit).ToArray();
+        if (digits.Length != 11) return false;
+        if (digits.All(d => d == digits[0])) return false;
+
+        int sum = 0;
+        for (int i = 0; i < 9; i++) sum += (digits[i] - '0') * (10 - i);
+        int rev = 11 - (sum % 11);
+        if (rev == 10 || rev == 11) rev = 0;
+        if (rev != (digits[9] - '0')) return false;
+
+        sum = 0;
+        for (int i = 0; i < 10; i++) sum += (digits[i] - '0') * (11 - i);
+        rev = 11 - (sum % 11);
+        if (rev == 10 || rev == 11) rev = 0;
+        if (rev != (digits[10] - '0')) return false;
+
+        return true;
     }
 }
