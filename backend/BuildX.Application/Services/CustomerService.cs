@@ -56,6 +56,56 @@ public class CustomerService : ICustomerService
         return MapToResponse(customer);
     }
 
+    public async Task UpdateCustomerAsync(Guid id, CustomerUpdateRequest request)
+    {
+        var customer = await _customerRepository.GetByIdAsync(id);
+        if (customer == null)
+        {
+            throw new Exception("Customer not found.");
+        }
+
+        customer.Name = request.Name;
+        customer.Email = request.Email;
+        customer.Phone = request.Phone;
+        
+        if (customer.Address != null)
+        {
+            customer.Address.Street = request.Address.Street;
+            customer.Address.Neighborhood = request.Address.Neighborhood;
+            customer.Address.City = request.Address.City;
+            customer.Address.State = request.Address.State;
+            customer.Address.ZipCode = request.Address.ZipCode;
+        }
+        else
+        {
+            customer.Address = new Address
+            {
+                Street = request.Address.Street,
+                Neighborhood = request.Address.Neighborhood,
+                City = request.Address.City,
+                State = request.Address.State,
+                ZipCode = request.Address.ZipCode
+            };
+        }
+
+        await _customerRepository.UpdateAsync(customer);
+    }
+
+    public async Task DeleteCustomerAsync(Guid id)
+    {
+        var customer = await _customerRepository.GetByIdAsync(id);
+        if (customer == null)
+        {
+            throw new Exception("Customer not found.");
+        }
+
+        // Note: In a real scenario, we would check for dependencies here.
+        // Since the current domain only has Customers and Users, and no explicit 
+        // relationship is defined in AppDbContext, we can proceed with soft delete.
+        
+        await _customerRepository.DeleteAsync(id);
+    }
+
     private CustomerResponse MapToResponse(Customer customer)
     {
         return new CustomerResponse

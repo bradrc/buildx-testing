@@ -43,4 +43,32 @@ public class CustomersController : ControllerBase
         var response = await _customerService.GetAllCustomersAsync();
         return Ok(response);
     }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] CustomerUpdateRequest request)
+    {
+        try
+        {
+            await _customerService.UpdateCustomerAsync(id, request);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        try
+        {
+            await _customerService.DeleteCustomerAsync(id);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }

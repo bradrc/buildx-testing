@@ -7,4 +7,6 @@ public interface ICustomerService
     Task<CustomerResponse> CreateCustomerAsync(CustomerCreateRequest request);
     Task<IEnumerable<CustomerResponse>> GetAllCustomersAsync();
     Task<CustomerResponse?> GetCustomerByIdAsync(Guid id);
+    Task UpdateCustomerAsync(Guid id, CustomerUpdateRequest request);
+    Task DeleteCustomerAsync(Guid id);
 }
