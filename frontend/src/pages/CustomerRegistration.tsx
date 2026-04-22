@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Save, ArrowLeft } from 'lucide-react';
+import { IMaskInput } from 'react-imask';
 import { CustomerService } from '../services/customerService';
 import { CepService } from '../services/cepService';
 import type { Customer } from '../types/customer';
@@ -12,10 +13,10 @@ import type { Customer } from '../types/customer';
 const customerSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres'),
   email: z.string().email('E-mail inválido'),
-  document: z.string().min(11, 'Documento inválido'),
-  phone: z.string().min(10, 'Telefone inválido'),
+  document: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, 'CPF inválido (000.000.000-00)'),
+  phone: z.string().regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, 'Telefone inválido ((00) 00000-0000)'),
   address: z.object({
-    zipCode: z.string().regex(/^\d{8}$/, 'CEP deve conter 8 dígitos'),
+    zipCode: z.string().regex(/^\d{5}-\d{3}$/, 'CEP inválido (00000-000)'),
     street: z.string().min(1, 'Rua é obrigatória'),
     neighborhood: z.string().min(1, 'Bairro é obrigatório'),
     city: z.string().min(1, 'Cidade é obrigatória'),
@@ -34,10 +35,15 @@ const CustomerRegistration = () => {
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors },
   } = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
+      name: '',
+      email: '',
+      document: '',
+      phone: '',
       address: {
         zipCode: '',
         street: '',
@@ -48,8 +54,8 @@ const CustomerRegistration = () => {
     },
   });
 
-  const handleCepBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-    const cep = e.target.value.replace(/\D/g, '');
+  const handleCepBlur = async (cepValue: string) => {
+    const cep = cepValue.replace(/\D/g, '');
     if (cep.length !== 8) return;
 
     setIsCepLoading(true);
@@ -70,9 +76,20 @@ const CustomerRegistration = () => {
   const onSubmit = async (data: CustomerFormValues) => {
     setIsSubmitting(true);
     try {
-      await CustomerService.createCustomer(data as Customer);
+      // Limpeza de máscaras antes do envio para a API
+      const cleanedData = {
+        ...data,
+        document: data.document.replace(/\D/g, ''),
+        phone: data.phone.replace(/\D/g, ''),
+        address: {
+          ...data.address,
+          zipCode: data.address.zipCode.replace(/\D/g, ''),
+        },
+      };
+
+      await CustomerService.createCustomer(cleanedData as Customer);
       toast.success('Cliente cadastrado com sucesso!');
-      navigate('/customers'); // Assuming a list page exists or will exist
+      navigate('/customers'); 
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Erro ao cadastrar cliente');
     } finally {
@@ -123,20 +140,36 @@ const CustomerRegistration = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-600">Documento (CPF/CNPJ)</label>
-                <input
-                  {...register('document')}
-                  className={`w-full p-2 border rounded-md outline-none transition-all ${errors.document ? 'border-red-500 focus:ring-1 ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-1 ring-blue-500'}`}
-                  placeholder="000.000.000-00"
+                <label className="text-sm font-medium text-slate-600">Documento (CPF)</label>
+                <Controller
+                  control={control}
+                  name="document"
+                  render={({ field }) => (
+                    <IMaskInput
+                      mask="000.000.000-00"
+                      className={`w-full p-2 border rounded-md outline-none transition-all ${errors.document ? 'border-red-500 focus:ring-1 ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-1 ring-blue-500'}`}
+                      placeholder="000.000.000-00"
+                      onAccept={(value) => field.onChange(value)}
+                      value={field.value}
+                    />
+                  )}
                 />
                 {errors.document && <p className="text-xs text-red-500">{errors.document.message}</p>}
               </div>
               <div className="space-y-1">
                 <label className="text-sm font-medium text-slate-600">Telefone</label>
-                <input
-                  {...register('phone')}
-                  className={`w-full p-2 border rounded-md outline-none transition-all ${errors.phone ? 'border-red-500 focus:ring-1 ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-1 ring-blue-500'}`}
-                  placeholder="(11) 99999-9999"
+                <Controller
+                  control={control}
+                  name="phone"
+                  render={({ field }) => (
+                    <IMaskInput
+                      mask="(00) 00000-0000"
+                      className={`w-full p-2 border rounded-md outline-none transition-all ${errors.phone ? 'border-red-500 focus:ring-1 ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-1 ring-blue-500'}`}
+                      placeholder="(11) 99999-9999"
+                      onAccept={(value) => field.onChange(value)}
+                      value={field.value}
+                    />
+                  )}
                 />
                 {errors.phone && <p className="text-xs text-red-500">{errors.phone.message}</p>}
               </div>
@@ -150,11 +183,23 @@ const CustomerRegistration = () => {
             <div className="space-y-1 relative">
               <label className="text-sm font-medium text-slate-600">CEP</label>
               <div className="relative">
-                <input
-                  {...register('address.zipCode')}
-                  onBlur={handleCepBlur}
-                  className={`w-full p-2 border rounded-md outline-none transition-all ${errors.address?.zipCode ? 'border-red-500 focus:ring-1 ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-1 ring-blue-500'}`}
-                  placeholder="00000000"
+                <Controller
+                  control={control}
+                  name="address.zipCode"
+                  render={({ field }) => (
+                    <IMaskInput
+                      mask="00000-000"
+                      className={`w-full p-2 border rounded-md outline-none transition-all ${errors.address?.zipCode ? 'border-red-500 focus:ring-1 ring-red-500' : 'border-slate-300 focus:border-blue-500 focus:ring-1 ring-blue-500'}`}
+                      placeholder="00000-000"
+                      onAccept={(value) => {
+                        field.onChange(value);
+                        if (value.length === 9) {
+                          handleCepBlur(value);
+                        }
+                      }}
+                      value={field.value}
+                    />
+                  )}
                 />
                 {isCepLoading && (
                   <div className="absolute right-2 top-1/2 -translate-y-1/2">
